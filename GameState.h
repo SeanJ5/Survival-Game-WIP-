@@ -5,7 +5,6 @@
 #include "Level.h"
 #include "Tiles.h"
 #include "Entity.h"
-#include "Mob.h"
 
 void GameState_Start();
 void GameState_Close();

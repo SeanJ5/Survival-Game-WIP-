@@ -1,54 +1,49 @@
 #include "GameState.h"
+#include "Player.h"
+#include "Zombie.h"
 
 Level* level1;
-Mob* PLAYER;
-Mob* ZOMBIE1;
+Entity* PLAYER;
+Entity* ZOMBIE1;
 
-void GameState_Start()
+void GameState_Start ()
 {
-  Tiles_InitAll();
+  Tiles_InitAll ();
 
-  level1 = Level_Create(50, 50);
-  Level_GenerateWorld(level1);
+  level1 = Level_Create ( 50, 50 );
+  Level_GenerateWorld ( level1 );
+  Entity_SetCurrentLevel(level1); // Sets the current level for all entities
 
-  PLAYER = Mob_CreatePlayer(50, 50);
-  ZOMBIE1 = Mob_CreateZombie(75, 50);
+  PLAYER  = Player_CreatePlayerEntity ( 50, 50 );
+  ZOMBIE1 = Zombie_CreateZombieEntity ( 75, 50 );
 }
 
 void GameState_Close()
 {
-  Level_Destroy(level1);
-  Mob_Destroy(PLAYER);
+  Level_Destroy ( level1 );
+
+  Entity_Destroy ( PLAYER );
+  Entity_Destroy ( ZOMBIE1 );
 }
 
-void GameState_Update()
+void GameState_Update ()
 {
-  TILES_GFX_TIMER++;
-
-  bool UP = KeyStates[SDL_SCANCODE_UP] || KeyStates[SDL_SCANCODE_W];
-  bool DOWN = KeyStates[SDL_SCANCODE_DOWN] || KeyStates[SDL_SCANCODE_S];
-  bool LEFT = KeyStates[SDL_SCANCODE_LEFT] || KeyStates[SDL_SCANCODE_A];
-  bool RIGHT = KeyStates[SDL_SCANCODE_RIGHT] || KeyStates[SDL_SCANCODE_D];
-
-  if(UP) Entity_Move(level1, PLAYER->entity,  0, -1);
-  if(DOWN) Entity_Move(level1, PLAYER->entity,  0,  1);
-  if(LEFT) Entity_Move(level1, PLAYER->entity, -1,  0);
-  if(RIGHT) Entity_Move(level1, PLAYER->entity,  1,  0);
+  PLAYER  -> Update(PLAYER);
+  ZOMBIE1 -> Update(ZOMBIE1);
 }
 
-void GameState_Render(Screen* screen)
+void GameState_Render ( Screen* screen )
 {
   Screen_FocusCamera
   (
     screen,
-    PLAYER->entity->collider->x + PLAYER->entity->image->w/2,
-    PLAYER->entity->collider->y + PLAYER->entity->image->h/2
+    PLAYER -> collider -> x + PLAYER -> image -> w / 2,
+    PLAYER -> collider -> y + PLAYER -> image -> h / 2
   );
 
-  Level_Render(screen, level1);
-
-  Entity_Render(screen, PLAYER->entity, 0);
-  Entity_Render(screen, ZOMBIE1->entity, 0);
+  Level_Render ( screen, level1 );
+  PLAYER  -> Render ( screen, PLAYER );
+  ZOMBIE1 -> Render ( screen, ZOMBIE1 );
 }
 
 

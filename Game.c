@@ -9,6 +9,7 @@
 #include "GameState.h"
 
 SDL_Window* window;         // SDL_Window (the window)
+SDL_Renderer* renderer;			// SDL_Renderer (drawing raster to window)
 Uint32* pixels;             // Pixel data OF WINDOW
 Screen* screen;             // Pixel data OF GAME RASTER
 const Uint8 SCALE = 5U;     // Value raster is scaled by to fit window
@@ -16,51 +17,62 @@ const Uint8 SCALE = 5U;     // Value raster is scaled by to fit window
 const Uint8* KeyStates;     // State of every keyboard key
 
 /*========[( Inits graphics )]========*/
-void initGraphics()
+void InitGraphics()
 {
-	screen = Screen_Create(160U, 128U);
+	// Init SDL
+	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Init(SDL_INIT_VIDEO);
-	#define POS SDL_WINDOWPOS_CENTERED
-
-	window = SDL_CreateWindow("Minicraft", POS, POS,
+	// Init window
+	window = SDL_CreateWindow("Minicraft",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		500,300, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
+	// Init renderer for drawing to window
+	renderer = SDL_CreateRenderer(window, -1,
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	SDL_RenderSetLogicalSize(renderer, 224, 126);
+
+	// Init screen struct
+	screen = Screen_Create(renderer, 224U, 126U);	// New Screen for game
+
+	// Initialize all Bitmaps (textures) for use
 	Bitmaps_CreateAll();
 }
 
 /*========[( Free graphics resources )]========*/
-void closeGraphics()
+void CloseGraphics()
 {
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-	Screen_Destroy(screen);
-	Bitmaps_DestroyAll();
+	SDL_DestroyWindow(window);	// Destroy the main SDL_Window
+	SDL_Quit();					        // Free SDL resources
+	Screen_Destroy(screen);		  // Destroy the screen and raster
+	Bitmaps_DestroyAll();		    // Free all Bitmaps (textures)
 }
 
 /*========[( Update game )]========*/
-void update()
+void Update()
 {
-	GameState_Update();
+	GameState_Update();	// Update main (gameplay) state of game
 }
 
 /*========[( Render Game )]========*/
-void render()
+void Render()
 {
-	Screen_Clear(screen, 0);
+	Screen_Clear(screen, 0x0);	// Clear screen->raster with a black
 
-	GameState_Render(screen);
+	GameState_Render(screen);	// Draw the main (gameplay) state of the game
 
-	//SDL_RestoreWindow(window);
-	Screen_DrawToWindow(SDL_GetWindowSurface(window), screen);
-	SDL_UpdateWindowSurface(window);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
+	Screen_DrawToWindow(screen, window);
+  SDL_RenderPresent(renderer);
 }
 
 /*========[( Start game + game loop )]========*/
-void run()
+void Run()
 {
 	srand(time(0));
-	initGraphics();
+	InitGraphics();
 
 	bool running = true;
 	SDL_Event e;
@@ -70,56 +82,27 @@ void run()
 	/* Init Game */
 	GameState_Start();
 
-	#define currentTime (float)clock()/CLOCKS_PER_SEC * 1000
-
-	const float msPerTick = 1000/60.0f;
-	double unprocessed = 0;
-	float last = currentTime, now;
-	int frames, ticks;
-
-	float updateInfo = currentTime;
-
 	while(running)
 	{
-		now = currentTime;
-		unprocessed += (now - last)/msPerTick;
-		last = now;
-
-		while (unprocessed >= 1)
+		while(SDL_PollEvent(&e))
 		{
-				ticks++;
-				update();
-				while(SDL_PollEvent(&e))
-				{
-					switch(e.type)
-					{
-						case SDL_QUIT: running = false; break;
-					}
-				}
-
-				unprocessed -= 1;
+			switch(e.type)
+			{
+				case SDL_QUIT: running = false; break;
+			}
 		}
-		render();
-		frames++;
 
-		if(currentTime - updateInfo > 1000)
-		{
-				updateInfo += 1000;
-				char buf[16];
-				snprintf(buf, sizeof buf, "%d ups, %d fps", ticks, frames);
-				SDL_SetWindowTitle(window, buf);
-				frames = 0;
-				ticks = 0;
-		}
+		Update();
+		Render();
 	}
 
 	/* Close Game */
 	GameState_Close();
-	closeGraphics();
+	CloseGraphics();
 }
 
 /*========[( public static void main(String args[]) )]========*/
 int main(int argc, char* argv[])
 {
-	run();
+	Run();
 }

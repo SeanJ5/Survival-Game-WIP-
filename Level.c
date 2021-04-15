@@ -27,6 +27,7 @@ void Level_GenerateWorld(Level* l)
   for(x = 0; x < 1000; x++)
   {
     l->map[rand()%l->width + rand()%l->height * l->width] = TILES_GRASS;
+    l->map[rand()%l->width + rand()%l->height * l->width] = TILES_STONE;
   }
 }
 
@@ -57,7 +58,7 @@ void Level_Render(Screen* s, Level* l)
       Screen_BlitBitmap
       (
         s, TILES[tile].image, TILES[tile].colors,
-           x * TILE_SIZE, y * TILE_SIZE, flags
+           x * TILE_SIZE, y * TILE_SIZE, FLIPX
       );
     }
 }

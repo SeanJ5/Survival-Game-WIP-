@@ -11,7 +11,7 @@
 
 #define TILES_WOODEN_PLANK 'a'
 #define TILES_GRASS        'g'
-#define TILES_ROCK         'r'
+#define TILES_STONE        's'
 #define TILES_WATER        'w'
 
 typedef struct
@@ -19,9 +19,9 @@ typedef struct
   Bitmap* image;
   Uint32 colors[3];
   bool solid;
+  Uint8 flags;
 } Tile;
 
 void Tiles_InitAll();
 
 extern Tile TILES[];
-extern Uint8 TILES_GFX_TIMER;
