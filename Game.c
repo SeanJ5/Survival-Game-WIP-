@@ -23,7 +23,7 @@ void InitGraphics()
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	// Init window
-	window = SDL_CreateWindow("Minicraft",
+	window = SDL_CreateWindow("Survival Game",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		500,300, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
@@ -31,10 +31,10 @@ void InitGraphics()
 	renderer = SDL_CreateRenderer(window, -1,
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_RenderSetLogicalSize(renderer, 224, 126);
+	SDL_RenderSetLogicalSize(renderer, 256, 144);
 
 	// Init screen struct
-	screen = Screen_Create(renderer, 224U, 126U);	// New Screen for game
+	screen = Screen_Create(renderer, 256U, 144U);	// New Screen for game
 
 	// Initialize all Bitmaps (textures) for use
 	Bitmaps_CreateAll();

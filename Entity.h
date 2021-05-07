@@ -6,9 +6,12 @@
 #include "Level.h"
 #include "Tiles.h"
 
-
 extern Level* Entity_CurrentLevel;
 
+#define DIR_DOWN 0
+#define DIR_RIGHT 1
+#define DIR_UP 2
+#define DIR_LEFT 3
 
 typedef struct Entity
 {
@@ -24,6 +27,7 @@ typedef struct Entity
   // Render entity with an offset from its x and y pos
   signed char renderXOffs;
   signed char renderYOffs;
+  Uint8 renderW, renderH;
 
   // Every entity needs this to update and render
   void (*Update)(struct Entity* e);
@@ -32,9 +36,14 @@ typedef struct Entity
   // Used by zombies, could be used by other entities
   int targetX, targetY;
 
-  Uint16 animationTick;
+  // Current collision info of entity
+  Tile_Corner_Couple collisionData;
 
+  Uint16 animationTick;
+  signed char dir;
   Uint16 timerTick;
+
+  Uint8 flipx, flipy;
 
 } Entity;
 
@@ -46,6 +55,6 @@ void Entity_Destroy(Entity* e);
 
 void Entity_SetCurrentLevel(Level* l);
 
-signed char Entity_Move(Level* l, Entity* e, int xa, int ya);
+Tile_Corner_Couple Entity_Move(Entity* e, int xa, int ya);
 
 void Entity_Render(Screen* s, Entity* e, Uint8 flags);

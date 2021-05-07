@@ -26,7 +26,7 @@ Screen* Screen_Create(SDL_Renderer* r, Uint16 w, Uint16 h);
 Uint32 Screen_GetRGB(Uint8 r, Uint8 g, Uint8 b);
 void Screen_Destroy(Screen* s);
 void Screen_DrawToWindow(Screen* screen, SDL_Window* window);
-void Screen_BlitBitmap(Screen* s, Bitmap* b, Uint32 colors[], int xp, int yp, Uint8 flags);
+void Screen_BlitBitmap(Screen* s, Bitmap* b, Uint32 colors[], int xp, int yp, Uint8 w, Uint8 h, Uint8 flags);
 void Screen_Clear(Screen* s, Uint32 color);
 void Screen_FocusCamera(Screen* s, int x, int y);
 

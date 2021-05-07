@@ -28,6 +28,8 @@ void GameState_Close()
 
 void GameState_Update ()
 {
+  Tiles_UpdateAll();
+
   PLAYER  -> Update(PLAYER);
   ZOMBIE1 -> Update(ZOMBIE1);
 }
@@ -37,8 +39,8 @@ void GameState_Render ( Screen* screen )
   Screen_FocusCamera
   (
     screen,
-    PLAYER -> collider -> x + PLAYER -> image -> w / 2,
-    PLAYER -> collider -> y + PLAYER -> image -> h / 2
+    PLAYER -> collider -> x + PLAYER -> renderXOffs + PLAYER -> image -> w / 2,
+    PLAYER -> collider -> y + PLAYER -> renderYOffs + PLAYER -> image -> h / 2
   );
 
   Level_Render ( screen, level1 );

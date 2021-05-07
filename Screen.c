@@ -46,7 +46,7 @@ void Screen_Destroy ( Screen* s )
 void Screen_DrawToWindow(Screen* screen, SDL_Window* window)
 {
   SDL_Rect screenRect;
-  
+
   screen->texture = SDL_CreateTextureFromSurface(screen->renderer, screen->surface);
   SDL_RenderCopy(screen->renderer, screen->texture, NULL, NULL);
   SDL_RenderPresent(screen->renderer);
@@ -62,8 +62,8 @@ Uint32 Screen_GetRGB(Uint8 r, Uint8 g, Uint8 b)
 /*====[( SET CAMERA OFFSETS ACCORDING x, y )]====*/
 void Screen_FocusCamera(Screen* s, int x, int y)
 {
-  CameraXOffs = x - s->width / 2;
-  CameraYOffs = y - s->height / 2;
+  CameraXOffs -= (CameraXOffs - (x - s->width / 2)) / 16;
+  CameraYOffs -= (CameraYOffs - (y - s->height / 2)) / 16;
 }
 
 /*====[( CLEAR Screen->raster WITH color )]====*/
@@ -77,33 +77,47 @@ void Screen_Clear(Screen* s, Uint32 color)
 }
 
 /*====[( BLIT BITMAP TO Screen->raster WIDTH FLAGS (FLIPPED ON X OR Y, ETC.) )]====*/
-void Screen_BlitBitmap(Screen* s, Bitmap* b, Uint32 colors[3], int xp, int yp, Uint8 flags)
+void Screen_BlitBitmap(Screen* s, Bitmap* b, Uint32 colors[3], int xp, int yp, Uint8 w, Uint8 h, Uint8 flags)
 {
-  xp -= CameraXOffs;
-  yp -= CameraYOffs;
+  xp -= (int)CameraXOffs;
+  yp -= (int)CameraYOffs;
 
   int x, y;
-  int xdraw, ydraw;
+  signed char xi = 1, yi = 1;
   bool flipx = flags & FLIPX;
   bool flipy = flags & FLIPY;
   Uint32 pixel;
 
   /* -Start draw positions (inside bitmap, not screen)- */
-  const int xs = (xp < 0) * (-xp);
-  const int ys = (yp < 0) * (-yp);
+  int xs = (xp < 0) * (-xp);
+  int ys = (yp < 0) * (-yp);
 
   /* -End draw positions (inside bitmap, not screen)- */
-  const int xe = b->w - (xp + b->w >= s->width) *
-	(xp + b->w - s->width);  // end draw pos (width)
-  const int ye = b->h - (yp + b->h >= s->height) *
-	(yp + b->h - s->height); // end draw pos (height)
+  int xe = w - (xp + w >= s->width) * (xp + w - s->width);  // end draw pos (width)
+  int ye = h - (yp + h >= s->height) * (yp + h - s->height); // end draw pos (height)
 
-  for(y = ys; y < ye; y++)
-	  for(x = xs; x < xe; x++)
+  if(flags & FLIPX)
+  {
+    int temp;
+    temp = xs - 1; xs = xe - 1; xe = temp;
+    xi = -1;
+  }
+
+  if(flags & FLIPY)
+  {
+    int temp;
+    temp = ys - 1; ys = ye - 1; ye = temp;
+    yi = -1;
+  }
+
+  for(y = ys; y*yi < ye*yi; y += yi)
+  {
+	  for(x = xs; x*xi < xe*xi; x += xi)
     {
-      if((pixel = b->bitmap[x + y * b->w]))
+      if((pixel = b->bitmap[((flags & flipx) ? w-1-x : x) + ((flags & flipy) ? h-1-y : y) * b->w]))
       {
         s->raster[(xp + x) + (yp + y) * s->width] = colors[pixel - 1];
       }
     }
+  }
 }

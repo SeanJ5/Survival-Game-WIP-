@@ -12,10 +12,16 @@ typedef struct
   char* map;
 } Level;
 
+typedef struct
+{
+  char tile;
+  signed char corner;
+} Tile_Corner_Couple;
+
 Level* Level_Create(Uint16 w, Uint16 h);
 void Level_Destroy(Level* l);
 void Level_GenerateWorld(Level* l);
 void Level_Render(Screen* s, Level* l);
-signed char Level_CheckTileIntersection(Level* l, int x, int y, Uint8 w, Uint8 h);
+Tile_Corner_Couple Level_CheckTileIntersection(int x, int y, Uint8 w, Uint8 h);
 
 #endif
